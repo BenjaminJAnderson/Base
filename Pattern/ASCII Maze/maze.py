@@ -35,6 +35,6 @@ def generate_svg(maze, filename='maze.svg'):
     dwg.save()
 
 # Example usage:
-maze = generate_maze(11, 11)
+maze = generate_maze(51, 51)
 generate_svg(maze)
 print(maze)
