@@ -16,8 +16,7 @@ def generate_maze(x, y):
                 maze[cy + dy, cx + dx] = maze[ny, nx] = 0
                 create_maze(nx, ny)
     
-    # Start creating paths from a random inner point
-    create_maze(random.randint(1, x // 2) * 2, random.randint(1, y // 2) * 2)
+    create_maze(random.randint(0, x // 2) * 2, random.randint(0, y // 2) * 2)
     return maze
 
 def generate_svg(maze, filename='maze.svg'):
@@ -36,6 +35,6 @@ def generate_svg(maze, filename='maze.svg'):
     dwg.save()
 
 # Example usage:
-maze = generate_maze(100, 100)
+maze = generate_maze(11, 11)
 generate_svg(maze)
 print(maze)
