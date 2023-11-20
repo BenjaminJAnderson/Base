@@ -1,27 +1,41 @@
-from random import shuffle, randrange
+import numpy as np
+import random
+import svgwrite
 
-def make_maze(w = 16, h = 8):
-    vis = [[0] * w + [1] for _ in range(h)] + [[1] * (w + 1)]
-    ver = [["|  "] * w + ['|'] for _ in range(h)] + [[]]
-    hor = [["+--"] * w + ['+'] for _ in range(h + 1)]
+def generate_maze(x, y):
+    maze = np.ones((y, x), dtype=int)
+    
+    def create_maze(cx, cy):
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        random.shuffle(directions)
+        
+        for dx, dy in directions:
+            nx, ny = cx + dx * 2, cy + dy * 2
+            
+            if 0 <= nx < x and 0 <= ny < y and maze[ny, nx] == 1:
+                maze[cy + dy, cx + dx] = maze[ny, nx] = 0
+                create_maze(nx, ny)
+    
+    # Start creating paths from a random inner point
+    create_maze(random.randint(1, x // 2) * 2, random.randint(1, y // 2) * 2)
+    return maze
 
-    def walk(x, y):
-        vis[y][x] = 1
+def generate_svg(maze, filename='maze.svg'):
+    height, width = maze.shape
+    
+    cell_size = 10  # Adjust the size of each cell
+    
+    dwg = svgwrite.Drawing(filename, profile='full')
+    dwg.add(dwg.rect((0, 0), (width * cell_size, height * cell_size), fill='white'))
+    
+    for y in range(height):
+        for x in range(width):
+            if maze[y, x] == 1:
+                dwg.add(dwg.rect((x * cell_size, y * cell_size), (cell_size, cell_size), fill='black'))
+    
+    dwg.save()
 
-        d = [(x - 1, y), (x, y + 1), (x + 1, y), (x, y - 1)]
-        shuffle(d)
-        for (xx, yy) in d:
-            if vis[yy][xx]: continue
-            if xx == x: hor[max(y, yy)][x] = "+  "
-            if yy == y: ver[y][max(x, xx)] = "   "
-            walk(xx, yy)
-
-    walk(randrange(w), randrange(h))
-
-    s = ""
-    for (a, b) in zip(hor, ver):
-        s += ''.join(a + ['\n'] + b + ['\n'])
-    return s
-
-if __name__ == '__main__':
-    print(make_maze())
+# Example usage:
+maze = generate_maze(100, 100)
+generate_svg(maze)
+print(maze)
